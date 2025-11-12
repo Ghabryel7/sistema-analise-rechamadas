@@ -1,0 +1,34 @@
+# Dependências principais do projeto de rechamadas
+Flask==3.1.1
+pandas==2.3.0
+numpy==2.3.0
+requests==2.32.4
+openpyxl==3.1.5
+pyarrow==20.0.0
+python-dateutil==2.9.0.post0
+
+# Servidor de produção
+gunicorn==23.0.0
+
+# Dependências auxiliares
+Jinja2==3.1.6
+Werkzeug==3.1.3
+MarkupSafe==3.0.2
+click==8.2.1
+itsdangerous==2.2.0
+blinker==1.9.0
+
+# Dependências de rede e certificados
+urllib3==2.4.0
+certifi==2025.4.26
+charset-normalizer==3.4.2
+idna==3.10
+
+# Dependências de data/timezone
+pytz==2025.2
+tzdata==2025.2
+
+# Outras dependências necessárias
+packaging==24.2
+six==1.17.0
+et_xmlfile==2.0.0

@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Rechamada</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/buttons/3.0.2/css/buttons.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        /* Updated: 2025-09-16 14:47 - Added scroll to table 1 */
+        /* === ESTILOS GLOBAIS === */
+        body { 
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+        
+        .container-fluid { 
+            padding: 20px; 
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .card { 
+            padding: 25px; 
+            margin-bottom: 25px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08); 
+            border: none;
+            background: white;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+
+        /* === HEADER === */
+        .header-container { 
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3f73 100%);
+            color: white; 
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3); 
+            border-radius: 12px;
+        }
+        
+        .header-container h1 { 
+            color: white; 
+            font-weight: 600;
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        /* === BOTÕES === */
+        .btn {
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3f73 100%);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1e3f73 0%, #2c5aa0 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #198754 0%, #146c43 100%);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .btn-success:hover {
+            background: linear-gradient(135deg, #146c43 0%, #198754 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .btn-info {
+            background: linear-gradient(135deg, #0dcaf0 0%, #31d2f2 100%);
+            color: #000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .btn-info:hover {
+            background: linear-gradient(135deg, #31d2f2 0%, #0dcaf0 100%);
+            color: #000;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #565e64 100%);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #565e64 0%, #6c757d 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .dt-buttons .btn { 
+            margin-bottom: 10px; 
+            margin-right: 8px;
+        }
+
+        /* === TABELAS === */
+        table.dataTable th, table.dataTable td { 
+            text-align: center !important; 
+            vertical-align: middle !important;
+            font-size: 0.9rem;
+        }
+        
+        table.dataTable th {
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #2c5aa0;
+        }
+        
+        table.dataTable tbody tr:hover {
+            background-color: rgba(44, 90, 160, 0.1) !important;
+        }
+
+        /* === TABELA 1 COM SCROLL === */
+        .tabela1-container { 
+            max-height: 500px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            border-radius: 8px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+            border: 1px solid #dee2e6;
+        }
+        
+        /* Forçar remoção do scroll do DataTables na tabela 1 */
+        #tabela1_wrapper .dt-scroll-body {
+            overflow: visible !important;
+            max-height: none !important;
+        }
+        
+        /* === TABELA 2 OTIMIZADA === */
+        #tabela2 { 
+            font-size: 0.8rem !important; 
+            width: 100% !important;
+            table-layout: fixed !important;
+        }
+        
+        #tabela2 th, #tabela2 td { 
+            padding: 8px 4px !important; 
+            font-size: 0.8rem !important;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            position: relative;
+        }
+        
+        /* Larguras específicas para cada coluna da Tabela 2 */
+        #tabela2 th:nth-child(1), #tabela2 td:nth-child(1) { width: 8% !important; } /* Nome */
+        #tabela2 th:nth-child(2), #tabela2 td:nth-child(2) { width: 8% !important; } /* Supervisor */
+        #tabela2 th:nth-child(3), #tabela2 td:nth-child(3) { width: 7% !important; } /* Origem */
+        #tabela2 th:nth-child(4), #tabela2 td:nth-child(4) { width: 4% !important; } /* DDD */
+        #tabela2 th:nth-child(5), #tabela2 td:nth-child(5) { width: 10% !important; } /* Local */
+        #tabela2 th:nth-child(6), #tabela2 td:nth-child(6) { width: 6% !important; } /* MVNO */
+        #tabela2 th:nth-child(7), #tabela2 td:nth-child(7) { width: 8% !important; } /* Categoria */
+        #tabela2 th:nth-child(8), #tabela2 td:nth-child(8) { width: 7% !important; } /* Tipo de Rechamada */
+        #tabela2 th:nth-child(9), #tabela2 td:nth-child(9) { width: 5% !important; } /* Semana */
+        #tabela2 th:nth-child(10), #tabela2 td:nth-child(10) { width: 6% !important; } /* Tempo de Atendimento */
+        #tabela2 th:nth-child(11), #tabela2 td:nth-child(11) { width: 12% !important; } /* Data/Hora Chamada Original */
+        #tabela2 th:nth-child(12), #tabela2 td:nth-child(12) { width: 12% !important; } /* Data/Hora Rechamada */
+        #tabela2 th:nth-child(13), #tabela2 td:nth-child(13) { width: 7% !important; } /* Status */
+        
+        /* Container da tabela 2 otimizado */
+        .tabela2-container { 
+            max-height: 600px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            border-radius: 8px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+            border: 1px solid #dee2e6;
+        }
+        
+        /* Forçar remoção do scroll do DataTables */
+        #tabela2_wrapper .dt-scroll-body {
+            overflow: visible !important;
+            max-height: none !important;
+        }
+        
+        /* Tooltips para colunas que podem ter texto cortado */
+        #tabela2 td[title]:hover::after {
+            content: attr(title);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        /* === CARDS DOS GRÁFICOS === */
+        .graph-card { 
+            min-height: 450px; 
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .graph-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #2c5aa0 0%, #1e3f73 100%);
+        }
+
+        /* === FILTROS === */
+        .filters-row th { 
+            padding: 8px !important; 
+            background: #f8f9fa;
+            vertical-align: middle !important;
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #2c5aa0;
+            box-shadow: 0 0 0 0.2rem rgba(44, 90, 160, 0.25);
+        }
+
+        /* === TÍTULOS === */
+        h3 {
+            color: #2c5aa0;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+        
+        h5 {
+            color: #495057;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        /* === RESPONSIVIDADE === */
+        @media (max-width: 768px) {
+            .container-fluid { padding: 10px; }
+            .card { padding: 15px; margin-bottom: 15px; }
+            .header-container h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="card text-center header-container">
+            <div class="d-flex justify-content-center align-items-center">
+                <h1 class="mb-0">Dashboard de Rechamadas</h1>
+            </div>
+        </div>
+
+        <div class="card">
+            <h5 class="mb-4 fw-bold text-primary">
+                <i class="fas fa-filter me-2"></i>Filtro Principal
+            </h5>
+            <form method="GET" action="/dashboard">
+                <div class="row g-3 align-items-end">
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label fw-semibold">Data Início:</label>
+                        <input type="date" class="form-control form-control-lg" name="data_inicio" value="{{ data_inicio_filtro }}">
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label fw-semibold">Data Fim:</label>
+                        <input type="date" class="form-control form-control-lg" name="data_fim" value="{{ data_fim_filtro }}">
+                    </div>
+                    <input type="hidden" name="data_inicio_tendencia" value="{{ data_inicio_tendencia }}">
+                    <input type="hidden" name="data_fim_tendencia" value="{{ data_fim_tendencia }}">
+                    <div class="col-lg-3 col-md-6">
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-search me-2"></i>Aplicar Filtro
+                        </button>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <button type="button" id="btn-exportar" class="btn btn-success btn-lg w-100">
+                            <i class="fas fa-file-excel me-2"></i>Exportar Excel
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <h3 class="mb-4 fw-bold text-primary">
+                        <i class="fas fa-chart-bar me-2"></i>Tabela 1: Desempenho por Agente
+                    </h3>
+                    <div class="tabela1-container">
+                        <table id="tabela1" class="table table-striped table-hover w-100">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>L5</th>
+                                    <th>Supervisor</th>
+                                    <th>Média de Ligação</th>
+                                    <th>Contagem de Ligações</th>
+                                    <th>Rechamada com Motivo</th>
+                                    <th>Rechamada sem Motivo</th>
+                                    <th>Rechamada Total</th>
+                                    <th>% com Motivo</th>
+                                    <th>% sem Motivo</th>
+                                    <th>% Total</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-12">
+                <div class="card">
+                    <h3 class="mb-4 fw-bold text-danger">
+                        <i class="fas fa-list-alt me-2"></i>Tabela 2: Detalhes de Rechamadas
+                    </h3>
+                    <div class="tabela2-container">
+                        <table id="tabela2" class="table table-striped table-hover w-100">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Supervisor</th>
+                                    <th>Origem</th>
+                                    <th>DDD</th>
+                                    <th>Local (Cidade e Estado)</th>
+                                    <th>MVNO</th>
+                                    <th>Categoria</th>
+                                    <th>Tipo de Rechamada</th>
+                                    <th>Semana</th>
+                                    <th>Tempo de Atendimento</th>
+                                    <th>Data/Hora da Chamada Original</th>
+                                    <th>Data/Hora da Rechamada</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-6 mb-4"><div class="card graph-card"><div id="graph_mvno"></div></div></div>
+            <div class="col-lg-6 mb-4"><div class="card graph-card"><div id="graph_categoria"></div></div></div>
+            <div class="col-lg-6 mb-4"><div class="card graph-card"><div id="graph_atendente"></div></div></div>
+            <div class="col-lg-6 mb-4"><div class="card graph-card"><div id="graph_supervisor"></div></div></div>
+        </div>
+
+        <div class="card">
+            <h5 class="mb-4 fw-bold text-info">
+                <i class="fas fa-chart-line me-2"></i>Filtro de Tendência
+            </h5>
+            <form method="GET" action="/dashboard">
+                <div class="row g-3 align-items-end">
+                    <div class="col-lg-4 col-md-6">
+                        <label class="form-label fw-semibold">Data Início:</label>
+                        <input type="date" class="form-control form-control-lg" name="data_inicio_tendencia" value="{{ data_inicio_tendencia }}">
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <label class="form-label fw-semibold">Data Fim:</label>
+                        <input type="date" class="form-control form-control-lg" name="data_fim_tendencia" value="{{ data_fim_tendencia }}">
+                    </div>
+                    <input type="hidden" name="data_inicio" value="{{ data_inicio_filtro }}">
+                    <input type="hidden" name="data_fim" value="{{ data_fim_filtro }}">
+                    <div class="col-lg-4 col-md-12">
+                        <button type="submit" class="btn btn-info btn-lg w-100">
+                            <i class="fas fa-chart-line me-2"></i>Aplicar Filtro de Tendência
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6 mb-4"><div class="card graph-card"><div id="graph_semana"></div></div></div>
+            <div class="col-lg-6 mb-4"><div class="card graph-card"><div id="graph_mes"></div></div></div>
+            <div class="col-lg-12 mb-4"><div class="card graph-card"><div id="graph_dia"></div></div></div>
+        </div>
+        </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.0.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+    // --- FUNÇÕES DE APOIO GLOBAIS ---
+
+    function formatDateTime(isoString) {
+        if (!isoString) return '';
+        const date = new Date(isoString);
+        if (isNaN(date)) return isoString;
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+        return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+    }
+
+    function formatSeconds(s) {
+        if (s === null || isNaN(s)) return '00:00:00';
+        const date = new Date(s * 1000);
+        return `${date.getUTCHours().toString().padStart(2, '0')}:${date.getUTCMinutes().toString().padStart(2, '0')}:${date.getUTCSeconds().toString().padStart(2, '0')}`;
+    }
+
+    function formatPercent(p) {
+        if (p === null || isNaN(p)) return '0,0%';
+        const percentageString = (p * 100).toFixed(1);
+        return percentageString.replace('.', ',') + '%';
+    }
+
+    function addHeaderFilters(api, tableId, filterMap) {
+        const filterableColumnTitles = filterMap[tableId] || [];
+        const filterRow = $('<tr class="filters-row"></tr>').appendTo($(api.table().header()));
+        api.columns().every(function() {
+            const column = this;
+            const title = $(column.header()).text().trim();
+            const th = $('<th></th>').appendTo(filterRow);
+            if (filterableColumnTitles.includes(title)) {
+                const select = $('<select multiple="multiple" style="width: 100%;"></select>').appendTo(th)
+                    .on('change', function () {
+                        const vals = $(this).val() || [];
+                        const searchStr = vals.map(v => `^${$.fn.dataTable.util.escapeRegex(v)}$`).join('|');
+                        column.search(searchStr, true, false).draw();
+                    });
+                column.data().unique().sort().toArray().forEach(d => {
+                    if (d && String(d).trim() !== '') { select.append(new Option(d, d)); }
+                });
+                select.select2({ theme: "bootstrap-5", placeholder: `Filtrar...`, closeOnSelect: false, allowClear: true });
+            }
+        });
+    }
+
+    // --- CÓDIGO PRINCIPAL DO DASHBOARD ---
+    $(document).ready(function() {
+        // --- 1. VARIÁVEIS E DADOS ---
+        let table1, table2;
+        const table1Data = JSON.parse('{{ tabela1_json | safe }}');
+        const table2Data = JSON.parse('{{ tabela2_json | safe }}');
+        const rankingData = JSON.parse('{{ ranking_json_raw | safe }}');
+
+        // Dados carregados do backend
+
+        const trendData = JSON.parse('{{ tendencia_json_agregado | safe }}');
+
+        // --- 2. FUNÇÕES DE RENDERIZAÇÃO E ATUALIZAÇÃO ---
+        const renderPlot = (elementId, traces, title) => { const layout = { title: title, margin: { t: 40, b: 120, l: 40, r: 20 }, yaxis: { title: 'Quantidade' }, legend: { title: { text: 'Métrica' } } }; Plotly.react(elementId, traces, layout, { responsive: true, displaylogo: false }); };
+        
+        function renderRankingCharts(filteredData) {
+            const chartConfigs = [
+                { id: 'graph_mvno', key: 'mvno', title: 'Rechamadas por MVNO' },
+                { id: 'graph_categoria', key: 'motivo_categoria', title: 'Rechamada por Categoria', top_n: 10 },
+                { id: 'graph_atendente', key: 'rechamada_atribuida_nome', title: 'Rechamada por Agente', top_n: 15 },
+                { id: 'graph_supervisor', key: 'rechamada_atribuida_supervisor', title: 'Rechamadas por Supervisor' }
+            ];
+
+            chartConfigs.forEach(config => {
+                Plotly.purge(config.id);
+                if (!filteredData || filteredData.length === 0) {
+                    renderPlot(config.id, [], config.title + " (Sem dados para os filtros aplicados)");
+                    return;
+                }
+                
+                const aggregation = filteredData.reduce((acc, item) => {
+                    const key = item[config.key] || 'N/A';
+                    if(!key || key === 'N/A' || key === 'Agente Desconhecido') return acc;
+                    if (!acc[key]) acc[key] = { total: 0, com_motivo: 0, sem_motivo: 0 };
+                    acc[key].total++;
+                    if (item.tipo_rechamada === 'Com Motivo') acc[key].com_motivo++; else if (item.tipo_rechamada === 'Sem Motivo') acc[key].sem_motivo++;
+                    return acc;
+                }, {});
+
+                let sortedEntries = Object.entries(aggregation).sort(([,a], [,b]) => b.total - a.total);
+                if (config.top_n) sortedEntries = sortedEntries.slice(0, config.top_n);
+
+                if (sortedEntries.length > 0) {
+                    sortedEntries.sort(([,a], [,b]) => a.total - b.total);
+                    
+                    const labels = sortedEntries.map(([key]) => key);
+                    const plotData = {
+                        total: sortedEntries.map(([, val]) => val.total),
+                        com_motivo: sortedEntries.map(([, val]) => val.com_motivo),
+                        sem_motivo: sortedEntries.map(([, val]) => val.sem_motivo)
+                    };
+                    const traces = [
+                        { name: 'Total', x: labels, y: plotData.total, type: 'bar', marker: { color: '#3498db' } },
+                        { name: 'Com Motivo', x: labels, y: plotData.com_motivo, type: 'scatter', mode: 'lines+markers', line: { color: '#e74c3c' } },
+                        { name: 'Sem Motivo', x: labels, y: plotData.sem_motivo, type: 'scatter', mode: 'lines+markers', line: { color: '#27ae60' } }
+                    ];
+                    renderPlot(config.id, traces, config.title);
+                } else {
+                    renderPlot(config.id, [], config.title + " (Sem dados para os filtros aplicados)");
+                }
+            });
+        }
+        
+        // ✅ Função de Gráficos de Tendência RESTAURADA
+        function renderTrendCharts(data) {
+            if (!data || data.length === 0) {
+                ['graph_semana', 'graph_mes', 'graph_dia'].forEach(id => Plotly.purge(id));
+                return;
+            }
+            const trendConfigs = [
+                { id: 'graph_semana', key: 'semana_label', title: 'Rechamadas por Semana', sortKey: 'semana_sort_key' },
+                { id: 'graph_mes', key: 'mes_label', title: 'Rechamadas por Mês', sortKey: 'mes_sort_key' },
+                { id: 'graph_dia', key: 'dia_label', title: 'Rechamadas por Dia', sortKey: 'dia_sort_key' }
+            ];
+            trendConfigs.forEach(config => {
+                const aggregation = data.reduce((acc, item) => {
+                    const key = item[config.key];
+                    if (!acc[key]) {
+                        acc[key] = { total: 0, com_motivo: 0, sem_motivo: 0, sort_key: item[config.sortKey] };
+                    }
+                    acc[key].total += item.total;
+                    acc[key].com_motivo += item.com_motivo;
+                    acc[key].sem_motivo += item.sem_motivo;
+                    return acc;
+                }, {});
+                const sortedEntries = Object.entries(aggregation).sort(([,a], [,b]) => a.sort_key > b.sort_key ? 1 : -1);
+                const labels = sortedEntries.map(([key]) => key);
+                const plotData = {
+                    total: sortedEntries.map(([, val]) => val.total),
+                    com_motivo: sortedEntries.map(([, val]) => val.com_motivo),
+                    sem_motivo: sortedEntries.map(([, val]) => val.sem_motivo)
+                };
+                const traces = [
+                    { name: 'Total', x: labels, y: plotData.total, type: 'bar', marker: { color: '#3498db' } },
+                    { name: 'Com Motivo', x: labels, y: plotData.com_motivo, type: 'scatter', mode: 'lines+markers', line: { color: '#e74c3c' } },
+                    { name: 'Sem Motivo', x: labels, y: plotData.sem_motivo, type: 'scatter', mode: 'lines+markers', line: { color: '#27ae60' } }
+                ];
+                renderPlot(config.id, traces, config.title);
+            });
+        }
+
+        function updateDynamicContent() {
+            const t1_filtered_data = table1.rows({ search: 'applied' }).data().toArray();
+            const t2_filtered_data = table2.rows({ search: 'applied' }).data().toArray();
+
+            const nomes_visiveis_t1 = new Set(t1_filtered_data.map(r => r.Nome));
+            const supervisores_visiveis_t1 = new Set(t1_filtered_data.map(r => r.Supervisor));
+            
+            const mvnos_visiveis_t2 = new Set(t2_filtered_data.map(r => r.MVNO));
+            const categorias_visiveis_t2 = new Set(t2_filtered_data.map(r => r.Categoria));
+            const tipos_rechamada_visiveis_t2 = new Set(t2_filtered_data.map(r => r['Tipo de Rechamada']));
+
+            const finalFilteredData = rankingData.filter(item => {
+                // Filtro por nome (mantém vínculo com tabela 1)
+                const atende_filtro_nome = nomes_visiveis_t1.has(item.rechamada_atribuida_nome);
+                // Filtro por supervisor removido para mostrar todos os supervisores
+                const atende_filtro_t2 = mvnos_visiveis_t2.has(item.mvno) && categorias_visiveis_t2.has(item.motivo_categoria) && tipos_rechamada_visiveis_t2.has(item.tipo_rechamada);
+                return atende_filtro_nome && atende_filtro_t2;
+            });
+            
+            renderRankingCharts(finalFilteredData);
+        }
+
+        // --- 3. FILTRO CRUZADO (T1 -> T2) RESTAURADO E CORRIGIDO ---
+        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+            if (settings.nTable.id !== 'tabela2' || !table1) return true;
+
+            const t1_filtered_data = table1.rows({ search: 'applied' }).data().toArray();
+            if (t1_filtered_data.length === 0) return true; // Se não há filtros na T1, mostra tudo na T2
+
+            // CORREÇÃO: Usar rechamada_atribuida_nome para mapear corretamente
+            const nomes_filtrados_t1 = new Set(t1_filtered_data.map(r => r.Nome));
+            const nomeNaTabela2 = data[0]; // Primeira coluna da Tabela 2 é Nome
+
+            return nomes_filtrados_t1.has(nomeNaTabela2);
+        });
+
+        // --- 4. CONFIGURAÇÕES DAS TABELAS ---
+        const filterMap = {
+            'tabela1': ['Nome', 'L5', 'Supervisor'],
+            'tabela2': ['Nome', 'Supervisor', 'Origem', 'Local (Cidade e Estado)', 'DDD', 'MVNO', 'Categoria', 'Tipo de Rechamada', 'Semana', 'Status']
+        };
+        const commonTableOptions = {
+            dom: "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4 text-center'B><'col-sm-12 col-md-4'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+            language: { url: "https://cdn.datatables.net/plug-ins/2.0.8/i18n/pt-BR.json" },
+            orderCellsTop: true, paging: false,
+            buttons: [
+                { text: 'Limpar Filtros', className: 'btn-secondary', action: function () { $('.filters-row select').val(null).trigger('change'); } },
+            ]
+        };
+
+        // --- 5. INICIALIZAÇÃO DAS TABELAS ---
+        table1 = $('#tabela1').DataTable({
+            ...commonTableOptions,
+            data: table1Data,
+            // ✅ Colunas de porcentagem corrigidas
+            columns: [
+                { data: 'Nome' }, { data: 'L5' }, { data: 'Supervisor' },
+                { data: 'Média de Ligação', render: (d, t) => t === 'display' ? formatSeconds(d) : d },
+                { data: 'Contagem de Ligações' }, { data: 'Rechamada com Motivo' }, { data: 'Rechamada sem Motivo' }, { data: 'Rechamada Total' },
+                { data: 'perc_com_motivo', render: (d, t) => t === 'display' ? formatPercent(d) : d },
+                { data: 'perc_sem_motivo', render: (d, t) => t === 'display' ? formatPercent(d) : d },
+                { data: 'perc_total', render: (d, t) => t === 'display' ? formatPercent(d) : d }
+            ],
+            initComplete: function() { addHeaderFilters(this.api(), 'tabela1', filterMap); }
+        });
+        
+        table2 = $('#tabela2').DataTable({
+            ...commonTableOptions,
+            data: table2Data,
+            columns: [
+                { data: 'Nome' }, { data: 'Supervisor' }, { data: 'Origem' }, { data: 'DDD' }, 
+                { data: 'Local (Cidade e Estado)' }, { data: 'MVNO' }, { data: 'Categoria' }, 
+                { data: 'Tipo de Rechamada' }, { data: 'Semana' }, { data: 'Tempo de Atendimento' },
+                { data: 'Data/Hora da Chamada Original', render: (d,t) => t === 'display' ? formatDateTime(d) : d },
+                { data: 'Data/Hora da Rechamada', render: (d,t) => t === 'display' ? formatDateTime(d) : d },
+                { data: 'Status' }
+            ],
+            initComplete: function() { addHeaderFilters(this.api(), 'tabela2', filterMap); }
+        });
+        
+        // --- 6. EVENTOS E HANDLERS ---
+        // RESTAURADO: Redesenhar tabela2 quando tabela1 for filtrada (comportamento original)
+        table1.on('draw.dt', function() { table2.draw(); updateDynamicContent(); });
+        table2.on('draw.dt', function() { updateDynamicContent(); });
+
+        // --- 7. FUNÇÃO PARA CAPTURAR FILTROS APLICADOS ---
+        function capturarFiltrosAplicados() {
+            const filtrosAplicados = {};
+
+            // Capturar filtros da Tabela 1
+            $('#tabela1_wrapper .filters-row select').each(function() {
+                const $select = $(this);
+                const thIndex = $select.closest('th').index();
+                const columnHeader = $('#tabela1 thead tr:first th').eq(thIndex).text().trim();
+                const valoresSelecionados = $select.val();
+
+                if (valoresSelecionados && valoresSelecionados.length > 0) {
+                    filtrosAplicados[columnHeader] = valoresSelecionados;
+                }
+            });
+
+            // CORREÇÃO: Também capturar filtros da Tabela 2
+            $('#tabela2_wrapper .filters-row select').each(function() {
+                const $select = $(this);
+                const thIndex = $select.closest('th').index();
+                const columnHeader = $('#tabela2 thead tr:first th').eq(thIndex).text().trim();
+                const valoresSelecionados = $select.val();
+
+                if (valoresSelecionados && valoresSelecionados.length > 0) {
+                    // Evitar sobrescrever filtros da Tabela 1 se já existirem
+                    if (!filtrosAplicados[columnHeader]) {
+                        filtrosAplicados[columnHeader] = valoresSelecionados;
+                    }
+                }
+            });
+
+            console.log('Filtros capturados para exportação:', filtrosAplicados);
+            return filtrosAplicados;
+        }
+        
+        // --- 8. HANDLER DO BOTÃO EXPORTAR ---
+        $('#btn-exportar').on('click', function() {
+            const $btn = $(this);
+            const textOriginal = $btn.html();
+            
+            // Mostra loading
+            $btn.html('<i class="fas fa-spinner fa-spin me-2"></i>Gerando Excel...');
+            $btn.prop('disabled', true);
+            
+            // Captura filtros aplicados
+            const filtros = capturarFiltrosAplicados();
+            
+            // Inclui filtros de data da URL atual
+            const urlParams = new URLSearchParams(window.location.search);
+            const dataInicio = urlParams.get('data_inicio') || '{{ data_inicio_filtro }}';
+            const dataFim = urlParams.get('data_fim') || '{{ data_fim_filtro }}';
+            
+            // Faz requisição POST com filtros
+            fetch('/exportar-tudo?data_inicio=' + dataInicio + '&data_fim=' + dataFim, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(filtros)
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.blob();
+                }
+                throw new Error('Erro ao gerar relatório');
+            })
+            .then(blob => {
+                // Cria download
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'Relatorio_Completo_' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao gerar o relatório. Tente novamente.');
+            })
+            .finally(() => {
+                // Restaura botão
+                $btn.html(textOriginal);
+                $btn.prop('disabled', false);
+            });
+        });
+        
+        // --- 9. INICIALIZAÇÃO FINAL ---
+        renderTrendCharts(trendData); // ✅ Chamada da função restaurada
+        table1.draw();
+    });
+    </script>
+</body>
+</html>
