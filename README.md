@@ -264,6 +264,5 @@ Para dúvidas sobre a implementação ou interesse em projetos similares, entre 
 
 **⭐ Se este projeto foi útil, considere dar uma estrela!**
 
-Desenvolvido com 💙 usando Python
-
 </div>
+
